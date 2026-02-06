@@ -168,46 +168,50 @@ function fish_greeting
         "Tonight, Gherman joins the hunt - Gherman, the First Hunter, Bloodborne"
     set sinead_quotes \
         "Get a load of this guy - Sinead Ahern, Le Girlfriend"
+    set gustave_quotes \
+        "For those who come after - Gustave, Clair Obscur: Expedition 33"
 
     # Define character foreground colors
     set fg_colors \
-        "#FFC0CB" "white" "#E4B91E" "green" "magenta" "white" "#DFC156" "red" "red" "cyan" "red" \
+        "#C2185B" "white" "#E4B91E" "green" "magenta" "white" "#DFC156" "red" "red" "cyan" "#E47A00" \
         "#1C70C8" "#DFC156" "#DFC156" "#DFC156" \
-        "#FF4500" "#FF4500" "#FF4500" "#FF4500" "#FF4500" "teal" \
+        "#FF4500" "#FF4500" "#FF4500" "#FF4500" "#FF4500" "#87CEFA" \
         "#DAA520" "white" "white" "white" \
-        "#DAA520" "black" "#FFD700" "black" \
-        "#DFC156" "#DFC156" "#DFC156" \
+        "#6B4E00" "black" "#FFD700" "black" \
+        "#FFD700" "#FFD700" "#FFD700" \
         "white" "white" "white" \
         "#00008B" "#800080" "#DAA520" "#FF0000" "#FFD700" \
-        "#FFA500" "#00FFFF" "black" "#FFA500" \
+        "#FFA500" "white" "black" "#FFA500" \
         "#808080" "#FFFF00" "#FFFF00" "#FFFF00" "#FFFF00" \
         "#FF0000" "#808080" "#FFA500" \
         "#006400" "white" \
         "#00B7EB" "#000000" "white" \
-        "#FF0000" "#FFD700" "#FF0000" \
+        "#003366" "#FFD700" "#FF0000" \
         "#800080" "red" \
-        "#FFD700" "#FF0000" "#FFD700" "#808080" "#FF0000" \
-        "#8B0000" "#808080" "#8B0000" "#808080"
+        "#FFD700" "#FF0000" "#8B0000" "#808080" "#FF0000" \
+        "#8B0000" "#808080" "#8B0000" "#808080" \
+        "#FFD700"
 
     # Define character background colors
     set bg_colors \
-        "white" "black" "#2A3139" "black" "black" "black" "red" "#DFC156" "black" "magenta" "#E47A00" \
+        "white" "black" "#2A3139" "black" "black" "black" "red" "#DFC156" "black" "magenta" "black" \
         "black" "black" "black" "#014421" \
         "black" "black" "black" "black" "black" "black" \
         "black" "black" "black" "black" \
         "white" "white" "black" "white" \
-        "#8F8F8F" "#8F8F8F" "#8F8F8F" \
+        "#7A7A7A" "#7A7A7A" "#7A7A7A" \
         "black" "black" "black" \
-        "black" "black" "black" "black" "black" \
-        "black" "white" "white" "black" \
+        "black" "black" "black" "black" "red" \
+        "black" "#005A9C" "white" "black" \
         "black" "black" "black" "black" "black" \
         "black" "black" "black" \
         "black" "black" \
         "black" "white" "black" \
-        "#00B7EB" "black" "black" \
+        "#FFB3B3" "black" "black" \
         "black" "black" "black" \
         "black" "#DAA520" "black" "black" "black" \
-        "black" "black" "black" "white"
+        "black" "black" "black" "white" \
+        "black"
 
     # List of character quote arrays
     set character_quote_arrays \
@@ -227,7 +231,8 @@ function fish_greeting
         todoroki_quotes escanor_quotes kaneki_quotes \
         jinx_quotes vi_quotes \
         godrick_quotes malenia_quotes godfrey_quotes morgott_quotes messmer_quotes \
-        nicolash_quotes maria_quotes gherman_quotes sinead_quotes
+        nicolash_quotes maria_quotes gherman_quotes sinead_quotes \
+        gustave_quotes
 
     # Select a random character
     set character_count (count $character_quote_arrays)
