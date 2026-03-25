@@ -1,0 +1,105 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 32,
+  "margin": "8 12 0 12",
+
+  "modules-left": [
+    "hyprland/workspaces",
+    "hyprland/window"
+  ],
+
+  "modules-center": [
+    "clock"
+  ],
+
+  "modules-right": [
+    "custom/bluetooth",
+    "pulseaudio",
+    "cpu",
+    "memory",
+    "network",
+    "battery"
+  ],
+
+  "custom/bluetooth": {
+    "exec": "~/.config/waybar/scripts/bluetooth-status",
+    "on-click": "~/.config/waybar/scripts/bluetooth-menu",
+    "on-click-right": "~/.config/waybar/scripts/bluetooth-menu --toggle",
+    "interval": 5,
+    "tooltip": false
+  },
+
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "(⇀‸↼‶) {volume}%",
+    "format-icons": {
+      "default": ["(*^.^*)", "♡(｡- ω -)", "＼(＾▽＾)／"]
+    },
+    "tooltip": false
+  },
+
+  "clock": {
+    "format": "{:%a %d %b  |  %H:%M}",
+    "tooltip": false
+  },
+
+  "hyprland/window": {
+    "max-length": 30
+  },
+
+  "battery": {
+    "format": "{icon} {capacity}%",
+    "format-charging": "⚡(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ {capacity}%",
+    "format-icons": {
+        "default": ["(´･ω･`)", "(・∀・)", "(＾◡＾)", "(´∀｀)", "＼(＾▽＾)／"],
+        "warning": "(；一_一)",
+        "critical": "((；ﾟДﾟ))"
+    },
+    "states": {
+        "warning": 30,
+        "critical": 15
+    },
+    "tooltip": true,
+    "tooltip-format": "Battery: {capacity}%\nTime remaining: {time}"
+  },
+
+  "cpu": {
+    "format": "{icon} {usage}%",
+    "format-icons": {
+        "default": "☆ﾐ(o*･ω･)ﾉ",
+        "warning": "。。。ミヽ(。＞＜)ノ",
+        "critical": "─=≡Σ((( つ＞＜)つ"
+    },
+    "states": {
+        "warning": 70,
+        "critical": 90
+    },
+    "tooltip": false
+  },
+
+  "memory": {
+    "format": "{icon} {percentage}%",
+    "format-alt": "{icon} {used:0.1f}GB/{total:0.1f}GB",
+    "format-icons": {
+        "default": "|ω･)ﾉ",
+        "warning": "|ʘ‿ʘ)╯",
+        "critical": "|･д･)ﾉ"
+    },
+    "states": {
+        "warning": 70,
+        "critical": 85
+    },
+    "tooltip": true,
+    "tooltip-format": "RAM: {used:0.1f}GB used of {total:0.1f}GB\n{percentage}% usage"
+  },
+
+  "network": {
+      "format-wifi": "(*´▽`*) {signalStrength}%",
+      "format-ethernet": "  {ipaddr}",
+      "format-disconnected": " Disconnected",
+      "on-click": "~/.config/waybar/scripts/connection-menu",
+      "on-click-right": "nm-connection-editor",
+      "tooltip-format-wifi": "Connected to: {essid}\nSignal: {signalStrength}%\nIP: {ipaddr}"
+  }
+}

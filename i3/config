@@ -6,12 +6,12 @@
 set $mod Mod4
 
 # set font
-font pango:Open sans 11
+font pango:IosevkaTerm Nerd Font Mono 11
 
 ### Runnig apps in background ###
 
 # run picom
-exec --no-startup-id picom
+exec_always --no-startup-id picom --experimental-backends --config ~/.config/picom/picom.conf
 
 # run mpd
 exec --no-startup-id mpd 
@@ -40,13 +40,13 @@ floating_modifier $mod
 bindsym $mod+Return exec alacritty
 
 # start google chrome
-bindsym $mod+q exec --no-startup-id google-chrome
+bindsym $mod+a exec --no-startup-id google-chrome
 
-#start cursor  
-bindsym $mod+w exec --no-startup-id cursor --no-sandbox
+#start kiro  
+bindsym $mod+w exec --no-startup-id kiro
 
 #start file manager
-bindsym $mod+a exec nautilus
+bindsym $mod+s exec nautilus
 
 #start spotify
 bindsym $mod+e exec --no-startup-id spotify
@@ -55,7 +55,7 @@ bindsym $mod+e exec --no-startup-id spotify
 bindsym $mod+d exec --no-startup-id discord
 
 # kill focused window
-bindsym $mod+Shift+q kill
+bindsym $mod+q kill
 
 # change focus
 bindsym $mod+j focus left
@@ -121,14 +121,16 @@ bindsym $mod+b move workspace to output right
 
 # run rofi programs
 bindsym $mod+p exec "rofi -show drun -no-default-config -config ~/.config/rofi/main.rasi"
-bindsym $mod+s exec "rofi -show drun -no-default-config -config ~/.config/rofi/full_screen.rasi"
-bindsym $mod+z exec "rofi -show  -modi ':rofi-bookmarks' -no-default-config -config ~/.config/rofi/main.rasi"
+bindsym $mod+z exec "rofi -show  -modi ':rofi-bookmarks' -no-default-config -config ~/.config/rofi/main.rasi"
 bindsym $mod+x exec "rofi-powermenu"
-bindsym $mod+c exec "flameshot gui --path ~/Pictures/screenshots"
+bindsym $mod+c exec --no-startup-id "flameshot gui -c --accept-on-select -p ~/Pictures/screenshots"
 
 # take a screenshot
-bindsym Pause exec "flameshot gui"
-bindsym Print exec "flameshot full --path ~/Pictures/screenshots"
+bindsym Pause exec --no-startup-id "flameshot gui -c -p ~/Pictures/screenshots"
+bindsym Print exec --no-startup-id "flameshot full -c -p ~/Pictures/screenshots"
+
+# debug window class (click on a window to see its class)
+bindsym $mod+Shift+d exec "xprop | grep CLASS"
 
 # brightness control
 bindsym XF86MonBrightnessUp exec sudo brightnessctl set +10% && notify-send "Brightness" "$(sudo brightnessctl get)"
@@ -161,15 +163,15 @@ bindsym ctrl + F9 exec xinput set-prop $(xinput list | grep -oP 'Touchpad.*id=\K
 bindsym ctrl + F10 exec xinput set-prop $(xinput list | grep -oP 'Touchpad.*id=\K\d+') "Device Enabled" 1 && dunstify -a "Touchpad" "Touchpad" "Touchpad is enabled" -r 100
 
 # workspaces names
-set $ws1 "1:  Code"
-set $ws2 "2:  Videos"
-set $ws3 "3:  Music"
-set $ws4 "4:  Misc"
-set $ws5 "5:  Web"
-set $ws6 "6:  Chat"
-set $ws7 "7:  Files"
-set $ws8 "8:  Games"
-set $ws9 "9:  Work"
+set $ws1 "1: 👨‍💻 Code"
+set $ws2 "2: 🎬 Videos"
+set $ws3 "3: 🎧 Music"
+set $ws4 "4: 🤷 Misc"
+set $ws5 "5: 🌐 Web"
+set $ws6 "6: 💬 Chat"
+set $ws7 "7: 📁 Files"
+set $ws8 "8: 🎮 Games"
+set $ws9 "9: 📊 Work"
 set $ws10 "10: ⚙️ Settings"
 
 # switch to workspace
@@ -226,15 +228,16 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-### BODERS ###
+### BORDERS ###
 
-#border width
-default_border pixel 2
+# Keep borders very thin so picom’s rounding looks clean
+default_border pixel 1
+default_floating_border pixel 1
+hide_edge_borders smart
 
-#border colors
-client.focused #343746 #343746 #F8F8F2 #343746 #343746
-client.focused_inactive #343746 #343746 #F8F8F2 #21222C #21222C
-client.unfocused #343746 #343746 #F8F8F2 #21222C #21222C
+client.focused          #5E81AC #5E81AC #FFFFFF #5E81AC #5E81AC   # <- focused border color
+client.focused_inactive #3A3A3A #3A3A3A #CCCCCC #3A3A3A #3A3A3A
+client.unfocused        #2A2A2A #2A2A2A #999999 #2A2A2A #2A2A2A
 
 ### SETTINGS FOR i3 BAR ###
 
@@ -292,5 +295,3 @@ mode "$mode_gaps_outer" {
         bindsym Return mode "default"
         bindsym Escape mode "default"
 }
-
-# Launch Chrome

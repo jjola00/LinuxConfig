@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v sensors >/dev/null 2>&1; then
+  echo "Temps unavailable"
+  exit 0
+fi
+
+json="$(sensors -j 2>/dev/null || true)"
+if [[ -z "$json" ]]; then
+  echo "Temps unavailable"
+  exit 0
+fi
+
+printf '%s' "$json" | python3 - <<'PY'
+import json
+import sys
+
+data = json.load(sys.stdin)
+
+def first_temp_from_chip(chip):
+    for _, sensor in chip.items():
+        if isinstance(sensor, dict):
+            for key, value in sensor.items():
+                if key.startswith("temp") and key.endswith("_input"):
+                    return value
+    return None
+
+def find_cpu_temp():
+    for chip_name, chip in data.items():
+        if "coretemp" in chip_name:
+            pkg = chip.get("Package id 0")
+            if isinstance(pkg, dict):
+                for key, value in pkg.items():
+                    if key.startswith("temp") and key.endswith("_input"):
+                        return value
+    for chip in data.values():
+        for label, sensor in chip.items():
+            if isinstance(sensor, dict) and label.lower().startswith("cpu"):
+                for key, value in sensor.items():
+                    if key.startswith("temp") and key.endswith("_input"):
+                        return value
+    for chip in data.values():
+        value = first_temp_from_chip(chip)
+        if value is not None:
+            return value
+    return None
+
+def find_gpu_temp():
+    gpu_keys = ("amdgpu", "radeon", "nouveau", "nvidia", "i915", "intel", "gpu")
+    for chip_name, chip in data.items():
+        if any(k in chip_name.lower() for k in gpu_keys):
+            value = first_temp_from_chip(chip)
+            if value is not None:
+                return value
+    for chip in data.values():
+        for label, sensor in chip.items():
+            if isinstance(sensor, dict) and "gpu" in label.lower():
+                for key, value in sensor.items():
+                    if key.startswith("temp") and key.endswith("_input"):
+                        return value
+    return None
+
+def find_fan_rpm():
+    fans = []
+    for chip in data.values():
+        for _, sensor in chip.items():
+            if isinstance(sensor, dict):
+                for key, value in sensor.items():
+                    if key.startswith("fan") and key.endswith("_input"):
+                        fans.append(value)
+    for value in fans:
+        if value and value > 0:
+            return value
+    return fans[0] if fans else None
+
+cpu = find_cpu_temp()
+gpu = find_gpu_temp()
+fan = find_fan_rpm()
+
+def fmt_temp(value):
+    return f"{int(round(value))}C" if value is not None else "N/A"
+
+def fmt_fan(value):
+    return f"{int(round(value))} RPM" if value is not None else "N/A"
+
+print(f"CPU {fmt_temp(cpu)} | GPU {fmt_temp(gpu)} | Fan {fmt_fan(fan)}")
+PY

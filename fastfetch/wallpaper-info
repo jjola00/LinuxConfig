@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/fastfetch"
+cache_file="${cache_dir}/wallpaper-info.txt"
+cache_meta="${cache_dir}/wallpaper-info.meta"
+
+wallpaper=""
+if command -v hyprctl >/dev/null 2>&1; then
+  wallpaper="$(hyprctl hyprpaper monitors 2>/dev/null | grep -Eo '/[^ ]+\\.(jpg|jpeg|png|webp)' | head -n1 || true)"
+fi
+
+if [[ -z "$wallpaper" ]]; then
+  config="${HYPRPAPER_CONFIG:-$HOME/.config/hypr/hyprpaper/hyprpaper.conf}"
+  if [[ -f "$config" ]]; then
+    line="$(grep -E '^[[:space:]]*wallpaper[[:space:]]*=' "$config" | tail -n1 || true)"
+    if [[ -n "$line" ]]; then
+      wallpaper="$(printf '%s' "$line" | sed -E 's/^[^=]*=//; s/.*,//; s/^[[:space:]]*//; s/[[:space:]]*$//')"
+      wallpaper="${wallpaper/#\~/$HOME}"
+    fi
+  fi
+fi
+
+if [[ -z "$wallpaper" ]]; then
+  echo "Wallpaper unavailable"
+  exit 0
+fi
+
+mtime="$(stat -c %Y "$wallpaper" 2>/dev/null || echo 0)"
+if [[ -f "$cache_meta" && -f "$cache_file" ]]; then
+  IFS='|' read -r cached_path cached_mtime < "$cache_meta" || true
+  if [[ "$cached_path" == "$wallpaper" && "$cached_mtime" == "$mtime" ]]; then
+    cat "$cache_file"
+    exit 0
+  fi
+fi
+
+mkdir -p "$cache_dir"
+
+name="$(basename "$wallpaper")"
+colors=""
+if command -v magick >/dev/null 2>&1 && [[ -f "$wallpaper" ]]; then
+  colors="$(magick "$wallpaper" -resize 64x64 -colors 3 -format '%c' histogram:info:- 2>/dev/null | \
+    awk 'match($0, /#[0-9A-Fa-f]{6}/) { print substr($0, RSTART, RLENGTH) }' | head -n3 | tr '\n' ' ')"
+  colors="$(printf '%s' "$colors" | xargs || true)"
+fi
+
+if [[ -n "$colors" ]]; then
+  output="${name}  ${colors}"
+else
+  output="${name}"
+fi
+
+printf '%s\n' "$output" > "$cache_file"
+printf '%s\n' "$wallpaper|$mtime" > "$cache_meta"
+printf '%s\n' "$output"

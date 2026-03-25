@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v bluetoothctl >/dev/null 2>&1; then
+  echo "BT n/a"
+  exit 0
+fi
+
+if ! bluetoothctl show >/dev/null 2>&1; then
+  echo "BT n/a"
+  exit 0
+fi
+
+powered="$(bluetoothctl show | awk -F': ' '/Powered/ {print $2; exit}')"
+if [[ "$powered" != "yes" ]]; then
+  echo "BT off"
+  exit 0
+fi
+
+connected="$(bluetoothctl devices Connected | sed -n 's/^Device [^ ]* //p')"
+if [[ -n "$connected" ]]; then
+  first="$(printf "%s\n" "$connected" | head -n1)"
+  count="$(printf "%s\n" "$connected" | wc -l | tr -d ' ')"
+  if [[ "$count" -gt 1 ]]; then
+    echo "BT ${first} +$((count - 1))"
+  else
+    echo "BT ${first}"
+  fi
+else
+  echo "BT on"
+fi

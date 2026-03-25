@@ -1,0 +1,22 @@
+{
+  "modules": [
+    {
+      "type": "os",
+      "key": "OS"
+    },
+    {
+      "type": "command",
+      "key": "GitHub",
+      "text": "/home/kami/.config/fastfetch/tsukiyomi-fetch wrapper github"
+    }
+  ],
+  "logo": {
+    "type": "sixel",
+    "source": "/home/kami/.config/fastfetch/pngs/itachi.png",
+    "height": 30,
+    "padding": {
+      "left": 6,
+      "right": 6
+    }
+  }
+}

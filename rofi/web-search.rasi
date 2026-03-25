@@ -1,0 +1,61 @@
+configuration {
+    show-icons: false;
+    font: "JetBrainsMono Nerd Font 10";
+    disable-history: true;
+}
+
+* {
+    bg:        rgba(50, 33, 86, 0.96);
+    fg:        #f2e9ff;
+    accent:    #c4a7e7;
+    muted:     #b3a6d9;
+    transparent: rgba(0,0,0,0);
+}
+
+window {
+    width: 420px;
+    padding: 0px;
+    background-color: @bg;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 14px;
+    location: center;
+}
+
+mainbox {
+    padding: 0px;
+    spacing: 0px;
+    children: [ "inputbar" ];
+}
+
+inputbar {
+    background-color: @transparent;
+    border: 2px;
+    border-color: rgba(196, 167, 231, 0.60);
+    border-radius: 12px;
+    padding: 10px 14px;
+    text-color: @fg;
+    children: [ "prompt", "entry" ];
+}
+
+prompt {
+    background-color: @transparent;
+    text-color: @accent;
+    padding: 0px 8px 0px 0px;
+    font: "JetBrainsMono Nerd Font Bold 10";
+}
+
+entry {
+    background-color: @transparent;
+    text-color: @fg;
+    placeholder-color: @muted;
+    expand: true;
+    placeholder: "Search...";
+}
+
+listview {
+    lines: 0;
+    fixed-height: false;
+    spacing: 0px;
+    padding: 0px;
+}

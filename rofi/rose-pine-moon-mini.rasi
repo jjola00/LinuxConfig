@@ -1,0 +1,59 @@
+configuration {
+    show-icons: false;
+    font: "JetBrainsMono Nerd Font 10";
+    disable-history: true;
+}
+
+* {
+    bg:        rgba(35, 33, 54, 0.92);
+    bg-alt:    rgba(196, 167, 231, 0.05);
+    fg:        #6e6a86;
+    accent:    #c4a7e7;
+
+    selected-bg: rgba(196, 167, 231, 0.20);
+    selected-fg: #393552;
+
+    transparent: rgba(0,0,0,0);
+}
+
+window {
+    width: 420px;
+    height: 90px;
+    padding: 0px;
+    background-color: @bg;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 14px;
+    location: center;
+}
+
+mainbox {
+    padding: 0px;
+    spacing: 0px;
+    children: [ "inputbar" ];
+}
+
+inputbar {
+    background-color: @transparent;
+    border: 2px;
+    border-color: rgba(196, 167, 231, 0.30);
+    border-radius: 12px;
+    padding: 8px 12px;
+    text-color: @fg;
+    children: [ "prompt", "entry" ];
+}
+
+prompt {
+    background-color: @transparent;
+    text-color: @accent;
+    padding: 0px 8px 0px 0px;
+    font: "JetBrainsMono Nerd Font Bold 10";
+}
+
+entry {
+    background-color: @transparent;
+    text-color: @fg;
+    placeholder-color: rgba(110, 106, 134, 0.6);
+    expand: true;
+    placeholder: "Search...";
+}

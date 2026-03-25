@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v bluetoothctl >/dev/null 2>&1; then
+  exit 0
+fi
+
+if command -v fuzzel >/dev/null 2>&1; then
+  dmenu_cmd=(fuzzel --dmenu)
+elif command -v rofi >/dev/null 2>&1; then
+  dmenu_cmd=(rofi -dmenu)
+else
+  exit 0
+fi
+
+menu() {
+  local prompt="$1"
+  "${dmenu_cmd[@]}" -p "$prompt"
+}
+
+powered_state() {
+  bluetoothctl show | awk -F': ' '/Powered/ {print $2; exit}'
+}
+
+list_paired() {
+  bluetoothctl devices Paired
+}
+
+list_connected() {
+  bluetoothctl devices Connected
+}
+
+select_device() {
+  local title="$1"
+  local list="$2"
+  local choices=""
+  while read -r _ mac name; do
+    [[ -z "${mac:-}" ]] && continue
+    choices+="${name} (${mac})"$'\n'
+  done <<< "$list"
+  [[ -z "$choices" ]] && return 1
+  local selection
+  selection="$(printf "%s" "$choices" | menu "$title")"
+  [[ -z "$selection" ]] && return 1
+  printf "%s" "$selection" | sed -n 's/.*(\([0-9A-F:]\+\)).*/\1/p'
+}
+
+toggle_power() {
+  local powered
+  powered="$(powered_state)"
+  if [[ "$powered" == "yes" ]]; then
+    bluetoothctl power off >/dev/null 2>&1
+  else
+    bluetoothctl power on >/dev/null 2>&1
+  fi
+}
+
+if [[ "${1:-}" == "--toggle" ]]; then
+  toggle_power
+  exit 0
+fi
+
+if ! bluetoothctl show >/dev/null 2>&1; then
+  exit 0
+fi
+
+powered="$(powered_state)"
+if [[ "$powered" != "yes" ]]; then
+  action="$(printf "Turn Bluetooth on\n" | menu "Bluetooth")"
+  if [[ "$action" == "Turn Bluetooth on" ]]; then
+    bluetoothctl power on >/dev/null 2>&1
+  fi
+  exit 0
+fi
+
+action="$(printf "Connect device\nDisconnect device\nPair new device\nForget device\nTurn Bluetooth off\n" | menu "Bluetooth")"
+case "$action" in
+  "Connect device")
+    paired="$(list_paired)"
+    connected_macs="$(list_connected | awk '{print $2}')"
+    available=""
+    while read -r _ mac name; do
+      [[ -z "${mac:-}" ]] && continue
+      if ! grep -q -F "$mac" <<< "$connected_macs"; then
+        available+="Device ${mac} ${name}"$'\n'
+      fi
+    done <<< "$paired"
+    mac="$(select_device "Connect" "$available" || true)"
+    [[ -z "${mac:-}" ]] && exit 0
+    bluetoothctl connect "$mac" >/dev/null 2>&1
+    bluetoothctl trust "$mac" >/dev/null 2>&1
+    ;;
+  "Disconnect device")
+    connected="$(list_connected)"
+    mac="$(select_device "Disconnect" "$connected" || true)"
+    [[ -z "${mac:-}" ]] && exit 0
+    bluetoothctl disconnect "$mac" >/dev/null 2>&1
+    ;;
+  "Pair new device")
+    bluetoothctl agent on >/dev/null 2>&1
+    bluetoothctl default-agent >/dev/null 2>&1
+    bluetoothctl pairable on >/dev/null 2>&1
+    bluetoothctl discoverable on >/dev/null 2>&1
+    bluetoothctl --timeout 10 scan on >/dev/null 2>&1
+    paired_macs="$(list_paired | awk '{print $2}')"
+    devices="$(bluetoothctl devices)"
+    new_devices=""
+    while read -r _ mac name; do
+      [[ -z "${mac:-}" ]] && continue
+      if ! grep -q -F "$mac" <<< "$paired_macs"; then
+        new_devices+="Device ${mac} ${name}"$'\n'
+      fi
+    done <<< "$devices"
+    mac="$(select_device "Pair" "$new_devices" || true)"
+    [[ -z "${mac:-}" ]] && exit 0
+    bluetoothctl pair "$mac" >/dev/null 2>&1
+    bluetoothctl trust "$mac" >/dev/null 2>&1
+    bluetoothctl connect "$mac" >/dev/null 2>&1
+    ;;
+  "Forget device")
+    paired="$(list_paired)"
+    mac="$(select_device "Forget" "$paired" || true)"
+    [[ -z "${mac:-}" ]] && exit 0
+    bluetoothctl remove "$mac" >/dev/null 2>&1
+    ;;
+  "Turn Bluetooth off")
+    bluetoothctl power off >/dev/null 2>&1
+    ;;
+esac

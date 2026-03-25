@@ -52,7 +52,7 @@ function fish_greeting
     set johan_quotes \
         "The only thing all humans are equal in is death. - Johan Liebert, Monster" \
         "Well, would you like a drink? - Johan Liebert, Monster" \
-        "I saw an even blacker darkness. - Johan Liebert, Monster"
+        "What do you think true fear is? I thought I had been to the darkest place in the universe.\nBut beyond that... I saw even blacker darkness. - Johan Liebert, Monster"
     set eren_quotes \
         "Freedom. - Eren Yeager, Attack on Titan" \
         "When I found out humanity existed outside of these walls.\nI was so disappointed. - Eren Yeager, Attack on Titan"

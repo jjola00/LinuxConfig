@@ -1,0 +1,104 @@
+configuration {
+    show-icons: true;
+    font: "JetBrainsMono Nerd Font 10";
+    disable-history: false;
+}
+
+/* UNIVERSAL COLORS */
+* {
+    bg:        rgba(35, 33, 54, 0.87);   /* semi-transparent purple background */
+    bg-alt:    rgba(196, 167, 231, 0.05); /* very transparent accent */
+    fg:        #6e6a86;                  /* dark purple text for better visibility */
+    accent:    #c4a7e7;                  /* pink accent */
+
+    selected-bg: rgba(196, 167, 231, 0.20); /* selected item background */
+    selected-fg: #393552;                /* darker purple for selected text */
+
+    transparent: rgba(0,0,0,0);          /* completely transparent */
+}
+
+/* WINDOW */
+window {
+    width: 600px;
+    padding: 0px;
+    background-color: @bg;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 0px;
+    location: center;
+}
+
+/* MAIN LAYOUT */
+mainbox {
+    padding: 0px;
+    spacing: 8px;
+    children: [ "inputbar", "listview" ];
+}
+
+/* INPUT BAR */
+inputbar {
+    background-color: @transparent;      /* remove white background */
+    border: 2px;
+    border-color: rgba(196, 167, 231, 0.30); /* subtle pink border */
+    border-radius: 12px;
+    padding: 8px 12px;
+    text-color: @fg;
+    children: [ "prompt", "entry" ];
+}
+
+/* PROMPT */
+prompt {
+    background-color: @transparent;
+    text-color: @accent;
+    padding: 0px 8px 0px 0px;
+    font: "JetBrainsMono Nerd Font Bold 10";
+}
+
+/* ENTRY */
+entry {
+    background-color: @transparent;
+    text-color: @fg;
+    placeholder-color: rgba(110, 106, 134, 0.6); /* darker purple placeholder */
+    expand: true;
+    placeholder: "Search...";
+}
+
+/* LIST VIEW */
+listview {
+    spacing: 4px;
+    fixed-height: true;
+    lines: 5;
+    background-color: @transparent;    /* remove white block */
+    scrollbar: false;
+    padding: 5px 0px;
+}
+
+/* NORMAL ITEMS */
+element {
+    background-color: @transparent;      /* remove all white backgrounds */
+    text-color: @fg;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px;
+    border-color: rgba(196, 167, 231, 0.15); /* subtle pink border */
+}
+
+/* SELECTED ITEMS */
+element selected {
+    background-color: @selected-bg;
+    text-color: @selected-fg;
+    border: 1px;
+    border-color: @accent;               /* pink border for selected */
+}
+
+/* TEXT FIX (avoid white fallback) */
+element-text {
+    background-color: inherit;
+    text-color: inherit;
+}
+
+/* REMOVE WHITE AROUND ICONS */
+element-icon {
+    background-color: @transparent;
+    size: 1.0em;
+}

@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/fastfetch"
+cache_file="${cache_dir}/weather.txt"
+ttl_seconds=1800
+
+now="$(date +%s)"
+if [[ -f "$cache_file" ]]; then
+  mtime="$(stat -c %Y "$cache_file" 2>/dev/null || echo 0)"
+  if (( now - mtime < ttl_seconds )); then
+    cat "$cache_file"
+    exit 0
+  fi
+fi
+
+mkdir -p "$cache_dir"
+
+if ! command -v curl >/dev/null 2>&1; then
+  if [[ -f "$cache_file" ]]; then
+    cat "$cache_file"
+  else
+    echo "Weather unavailable"
+  fi
+  exit 0
+fi
+
+update_cache() {
+  local data url
+  url="https://wttr.in/?format=%25l:+%25t+%25C"
+  data="$(curl -sS --max-time 4 -A 'curl' "$url" 2>/dev/null || true)"
+  data="$(printf '%s' "$data" | tr -s ' ')"
+  if [[ -n "$data" ]]; then
+    printf '%s\n' "$data" > "$cache_file"
+    return 0
+  fi
+  return 1
+}
+
+if [[ -f "$cache_file" ]]; then
+  mtime="$(stat -c %Y "$cache_file" 2>/dev/null || echo 0)"
+  if (( now - mtime >= ttl_seconds )); then
+    cat "$cache_file"
+    update_cache >/dev/null 2>&1 &
+    exit 0
+  fi
+fi
+
+if update_cache; then
+  cat "$cache_file"
+else
+  if [[ -f "$cache_file" ]]; then
+    cat "$cache_file"
+  else
+    echo "Weather unavailable"
+  fi
+fi

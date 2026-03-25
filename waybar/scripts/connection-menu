@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v nmcli >/dev/null 2>&1; then
+  exit 0
+fi
+
+if command -v fuzzel >/dev/null 2>&1; then
+  dmenu_cmd=(fuzzel --dmenu)
+  pass_cmd=(fuzzel --dmenu --password)
+elif command -v rofi >/dev/null 2>&1; then
+  dmenu_cmd=(rofi -dmenu -i)
+  pass_cmd=(rofi -dmenu -i -password)
+else
+  exit 0
+fi
+
+menu() {
+  local prompt="$1"
+  "${dmenu_cmd[@]}" -p "$prompt"
+}
+
+menu_pass() {
+  local prompt="$1"
+  "${pass_cmd[@]}" -p "$prompt"
+}
+
+wifi_state() {
+  nmcli -t -f WIFI g 2>/dev/null || true
+}
+
+toggle_wifi() {
+  local state
+  state="$(wifi_state)"
+  if [[ "$state" == "enabled" ]]; then
+    nmcli radio wifi off
+  else
+    nmcli radio wifi on
+  fi
+}
+
+if [[ "${1:-}" == "--toggle" ]]; then
+  toggle_wifi
+  exit 0
+fi
+
+state="$(wifi_state)"
+if [[ "$state" != "enabled" ]]; then
+  choice="$(printf "Turn Wi-Fi on\n" | menu "Wi-Fi" || true)"
+  [[ "$choice" == "Turn Wi-Fi on" ]] && nmcli radio wifi on
+  exit 0
+fi
+
+while true; do
+  active_device="$(nmcli -t -f DEVICE,TYPE,STATE dev status \
+    | awk -F: '$2=="wifi" && $3=="connected" {print $1; exit}')"
+
+  action_off="[Action] Turn Wi-Fi off"
+  action_rescan="[Action] Rescan"
+  action_hidden="[Action] Hidden network..."
+  action_forget="[Action] Forget network..."
+  action_disconnect="[Action] Disconnect"
+
+  menu_entries=("$action_off" "$action_rescan" "$action_hidden" "$action_forget")
+  if [[ -n "$active_device" ]]; then
+    menu_entries+=("$action_disconnect")
+  fi
+
+  sep=$'\t'
+  # Get the currently active SSID
+  active_ssid="$(nmcli -t -f NAME,TYPE connection show --active \
+    | awk -F: '$2=="802-11-wireless" {print $1; exit}')"
+  # Deduplicate: keep strongest signal (first seen) per SSID
+  declare -A seen_ssids
+  while IFS=: read -r _inuse ssid security signal; do
+    [[ -z "$ssid" ]] && ssid="<hidden>"
+    if [[ -z "$security" || "$security" == "--" ]]; then
+      security="open"
+    fi
+    if [[ -z "$signal" ]]; then
+      signal="--"
+    else
+      signal="${signal}%"
+    fi
+    if [[ -n "${seen_ssids[$ssid]+x}" ]]; then
+      continue
+    fi
+    seen_ssids[$ssid]=1
+    mark=" "
+    [[ "$ssid" == "$active_ssid" ]] && mark="*"
+    menu_entries+=("${mark}${sep}${ssid}${sep}${signal}${sep}${security}")
+  done < <(nmcli -t -e yes -f IN-USE,SSID,SECURITY,SIGNAL \
+    dev wifi list --rescan yes 2>/dev/null || true)
+
+  choice="$(printf "%s\n" "${menu_entries[@]}" | menu "Wi-Fi" || true)"
+  [[ -z "$choice" ]] && exit 0
+
+  case "$choice" in
+    "$action_rescan")
+      continue
+      ;;
+    "$action_off")
+      nmcli radio wifi off
+      exit 0
+      ;;
+    "$action_hidden")
+      ssid="$(printf "" | menu "Hidden SSID" || true)"
+      [[ -z "$ssid" ]] && exit 0
+      pass="$(printf "" | menu_pass "Password for $ssid (blank for open)" || true)"
+      if [[ -z "$pass" ]]; then
+        nmcli dev wifi connect "$ssid" hidden yes
+      else
+        nmcli dev wifi connect "$ssid" password "$pass" hidden yes
+      fi
+      exit 0
+      ;;
+    "$action_disconnect")
+      [[ -n "$active_device" ]] && nmcli dev disconnect "$active_device"
+      exit 0
+      ;;
+    "$action_forget")
+      saved="$(nmcli -t -f NAME,TYPE connection show \
+        | awk -F: '$2=="wifi" {print $1}')"
+      [[ -z "$saved" ]] && exit 0
+      name="$(printf "%s\n" "$saved" | menu "Forget network" || true)"
+      [[ -z "$name" ]] && exit 0
+      confirm="$(printf "Cancel\nForget\n" | menu "Forget $name?" || true)"
+      [[ "$confirm" == "Forget" ]] && nmcli connection delete id "$name"
+      exit 0
+      ;;
+  esac
+
+  IFS=$'\t' read -r _ ssid _ security <<< "$choice"
+  [[ -z "$ssid" ]] && exit 0
+  if [[ "$ssid" == "<hidden>" ]]; then
+    ssid="$(printf "" | menu "SSID" || true)"
+    [[ -z "$ssid" ]] && exit 0
+  fi
+  if [[ "$security" == "open" ]]; then
+    nmcli dev wifi connect "$ssid"
+  else
+    pass="$(printf "" | menu_pass "Password for $ssid" || true)"
+    [[ -z "$pass" ]] && exit 0
+    nmcli dev wifi connect "$ssid" password "$pass"
+  fi
+  exit 0
+done

@@ -29,6 +29,8 @@ alias pgstart='sudo systemctl start postgresql@16-main.service'
 # Force Electron apps to use Wayland
 set -gx ELECTRON_OZONE_PLATFORM_HINT auto
 
+set -gx SUDO_PROMPT "pass? 🥺👉👈 "
+
 # Wayland-enabled app aliases
 alias code='env ELECTRON_OZONE_PLATFORM_HINT=auto code --ozone-platform-hint=auto --enable-features=WaylandWindowDecorations'
 alias spotify='spotify --enable-features=UseOzonePlatform --ozone-platform=wayland'

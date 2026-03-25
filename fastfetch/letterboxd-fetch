@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+username="${1:-jjola00}"
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/fastfetch"
+cache_file="${cache_dir}/letterboxd-${username}.txt"
+ttl_seconds=21600
+
+now="$(date +%s)"
+if [[ -f "$cache_file" ]]; then
+  mtime="$(stat -c %Y "$cache_file" 2>/dev/null || echo 0)"
+  if (( now - mtime < ttl_seconds )); then
+    cat "$cache_file"
+    exit 0
+  fi
+fi
+
+mkdir -p "$cache_dir"
+
+update_cache() {
+  local html output
+  html="$(curl -fsSL "https://letterboxd.com/${username}/" || true)"
+  if [[ -z "$html" ]]; then
+    return 1
+  fi
+
+  output="$(
+    printf '%s' "$html" | python3 -c $'import sys, re, html\ntext = sys.stdin.read()\npairs = re.findall(r\'<span class="value">([^<]+)</span><span class="definition">([^<]+)</span>\', text)\nstats = {}\nfor val, name in pairs:\n    key = html.unescape(name).strip().lower()\n    val = html.unescape(val).strip().replace(\"\\\\xa0\", \" \")\n    stats[key] = val\nfilms = stats.get(\"films\", \"-\")\nlists = stats.get(\"lists\", \"-\")\nfollowers = stats.get(\"followers\", \"-\")\nfollowing = stats.get(\"following\", \"-\")\nfilm_icon = chr(0xF008)\nlist_icon = chr(0xF03A)\nfollowers_icon = chr(0xF0C0)\nfollowing_icon = chr(0xF007)\nmagenta = \"\\\\033[35m\"\nreset = \"\\\\033[0m\"\nprint(f\"{magenta}{film_icon}{reset} {films} {magenta}{list_icon}{reset} {lists} {magenta}{followers_icon}{reset} {followers} {magenta}{following_icon}{reset} {following}\")'
+  )"
+
+  if [[ -n "$output" ]]; then
+    printf '%s\n' "$output" > "$cache_file"
+    return 0
+  fi
+  return 1
+}
+
+if [[ -f "$cache_file" ]]; then
+  mtime="$(stat -c %Y "$cache_file" 2>/dev/null || echo 0)"
+  if (( now - mtime >= ttl_seconds )); then
+    cat "$cache_file"
+    update_cache >/dev/null 2>&1 &
+    exit 0
+  fi
+fi
+
+if update_cache; then
+  cat "$cache_file"
+else
+  if [[ -f "$cache_file" ]]; then
+    cat "$cache_file"
+  else
+    echo "Letterboxd unavailable"
+  fi
+fi

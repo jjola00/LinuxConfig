@@ -1,0 +1,2 @@
+# Keep readline (bash) using an audible bell
+set bell-style audible

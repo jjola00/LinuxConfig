@@ -1,0 +1,43 @@
+[global]
+monitor = 0
+follow = mouse
+
+# Position
+origin = top-right
+offset = (20, 20)
+width = 300
+height = (0, 80)
+
+indicate_hidden = yes
+shrink = no
+transparency = 10
+separator_height = 2
+padding = 15
+horizontal_padding = 12
+
+frame_width = 2
+frame_color = "#c4a7e7"
+corner_radius = 12
+
+font = JetBrainsMono Nerd Font 10
+
+icon_theme = Papirus
+max_icon_size = 48
+
+[urgency_low]
+background = "#2a273f"
+foreground = "#e0def4"
+frame_color = "#6e6a86"
+timeout = 4
+
+[urgency_normal]
+background = "#232136"
+foreground = "#e0def4"
+frame_color = "#c4a7e7"
+timeout = 7
+
+[urgency_critical]
+background = "#393552"
+foreground = "#eb6f92"
+frame_color = "#eb6f92"
+timeout = 0

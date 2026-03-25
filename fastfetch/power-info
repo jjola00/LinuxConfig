@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+battery_path=""
+if command -v upower >/dev/null 2>&1; then
+  battery_path="$(upower -e | grep -Ei 'battery|BAT' | head -n1 || true)"
+fi
+
+percent=""
+state=""
+time_left=""
+if [[ -n "$battery_path" ]]; then
+  info="$(upower -i "$battery_path" 2>/dev/null || true)"
+  percent="$(printf '%s\n' "$info" | awk -F: '/percentage/ {gsub(/ /, "", $2); print $2}')"
+  state="$(printf '%s\n' "$info" | awk -F: '/state/ {gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2); print $2}')"
+  time_left="$(printf '%s\n' "$info" | awk -F: '/time to (empty|full)/ {gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2); print $2; exit}')"
+fi
+
+profile=""
+if command -v powerprofilesctl >/dev/null 2>&1; then
+  profile="$(powerprofilesctl get 2>/dev/null || true)"
+fi
+
+if [[ -z "$percent" ]]; then
+  echo "Power unavailable"
+  exit 0
+fi
+
+output="${percent}"
+if [[ -n "$state" ]]; then
+  output="${output} ${state}"
+fi
+if [[ -n "$time_left" ]]; then
+  output="${output} (${time_left})"
+fi
+if [[ -n "$profile" ]]; then
+  output="${output} | profile ${profile}"
+fi
+
+printf '%s\n' "$output"

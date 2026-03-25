@@ -1,0 +1,107 @@
+@define-color base #232136;
+@define-color surface #2a273f;
+@define-color overlay #393552;
+
+@define-color rose   #ea9a97;
+@define-color pine   #3e8fb0;
+@define-color iris   #c4a7e7;
+@define-color gold   #f6c177;
+@define-color love   #eb6f92;
+
+@define-color text   #e0def4;
+@define-color muted  #6e6a86;
+
+* {
+    font-size: 10px;
+    font-family: "JetBrainsMono Nerd Font";
+    min-height: 0;
+}
+
+window#waybar {
+    background: alpha(@base, 0.70);
+    border-radius: 14px;
+    color: @text;
+    padding: 4px 8px;
+    margin: 6px 10px;
+}
+
+#workspaces button {
+    padding: 6px 10px;
+    margin: 4px 4px;
+    border-radius: 8px;
+    background: @surface;
+}
+
+#workspaces button.active {
+    background: @iris;
+    color: @base;
+}
+
+#window {
+    padding: 0 12px;
+}
+
+#clock,
+#cpu,
+#memory,
+#network,
+#pulseaudio,
+#battery,
+#custom-bluetooth {
+    padding: 2px 10px;
+    margin: 6px 5px;
+    border-radius: 8px;
+    background: rgba(40, 40, 40, 0.8);
+    color: #ffffff;
+}
+
+/* Individual module colors */
+#pulseaudio {
+    background: #8b1656;
+    color: #ffffff;
+}
+
+#cpu {
+    background: #8b1656;
+    color: #ffffff;
+}
+
+#memory {
+    background: #8b1656;
+    color: #ffffff;
+}
+
+#network {
+    background: #8b1656;
+    color: #ffffff;
+}
+
+#battery {
+    background: #8b1656;
+    color: #ffffff;
+}
+
+#custom-bluetooth {
+    background: #8b1656;
+    color: #ffffff;
+}
+
+/* State-based styling */
+#cpu.warning {
+    background: #fb4934;
+}
+
+#battery.warning {
+    background: #fe8019;
+}
+
+#battery.critical {
+    background: #fb4934;
+    animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+    to {
+        opacity: 0.5;
+    }
+}

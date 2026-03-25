@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/fastfetch"
+cache_file="${cache_dir}/nowplaying.txt"
+ttl_seconds=5
+
+if ! command -v playerctl >/dev/null 2>&1; then
+  echo "Not playing"
+  exit 0
+fi
+
+now="$(date +%s)"
+if [[ -f "$cache_file" ]]; then
+  mtime="$(stat -c %Y "$cache_file" 2>/dev/null || echo 0)"
+  if (( now - mtime < ttl_seconds )); then
+    cat "$cache_file"
+    exit 0
+  fi
+fi
+
+mkdir -p "$cache_dir"
+
+update_cache() {
+  local status artist title output
+  status="$(playerctl -p spotify status 2>/dev/null || true)"
+  if [[ "$status" != "Playing" && "$status" != "Paused" ]]; then
+    printf '%s\n' "Not playing" > "$cache_file"
+    return 0
+  fi
+
+  artist="$(playerctl -p spotify metadata artist 2>/dev/null || true)"
+  title="$(playerctl -p spotify metadata title 2>/dev/null || true)"
+  output=""
+
+  if [[ -n "$artist" && -n "$title" ]]; then
+    output="${artist} - ${title}"
+  elif [[ -n "$title" ]]; then
+    output="$title"
+  elif [[ -n "$artist" ]]; then
+    output="$artist"
+  else
+    output="Now playing"
+  fi
+
+  if [[ "$status" == "Paused" ]]; then
+    output="${output} (paused)"
+  fi
+
+  printf '%s\n' "$output" > "$cache_file"
+}
+
+if [[ -f "$cache_file" ]]; then
+  mtime="$(stat -c %Y "$cache_file" 2>/dev/null || echo 0)"
+  if (( now - mtime >= ttl_seconds )); then
+    cat "$cache_file"
+    update_cache >/dev/null 2>&1 &
+    exit 0
+  fi
+fi
+
+update_cache
+cat "$cache_file"

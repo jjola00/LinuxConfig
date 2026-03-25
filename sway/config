@@ -1,0 +1,148 @@
+# ~/.config/sway/config
+set $mod Mod4
+font pango:IosevkaTerm Nerd Font Mono 11
+
+set $term alacritty
+set $menu rofi -show drun -no-default-config -config ~/.config/rofi/main.rasi
+set $wallpaper "$HOME/Pictures/wallpapers/background.png"
+set $locker swaylock -f --grace 5 --fade-in 0.3
+set $notify_cmd notify-send -a Sway
+
+exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+
+exec_always swaybg -m fill -i $wallpaper
+exec_always ~/.config/sway/scripts/launch_waybar.sh
+exec mpd
+exec mako
+exec nm-applet --indicator
+exec battery
+
+exec swayidle -w \
+    timeout 600 '$locker' \
+    timeout 1200 'swaymsg "output * dpms off"' \
+    resume 'swaymsg "output * dpms on"' \
+    before-sleep '$locker'
+
+floating_modifier $mod
+
+bindsym $mod+Return exec $term
+bindsym $mod+q exec google-chrome
+bindsym $mod+w exec kiro
+bindsym $mod+a exec nautilus
+bindsym $mod+e exec spotify
+bindsym $mod+d exec discord
+bindsym $mod+p exec $menu
+bindsym $mod+o exec pkill -SIGUSR1 waybar
+bindsym $mod+Shift+q kill
+
+bindsym $mod+j focus left
+bindsym $mod+k focus down
+bindsym $mod+l focus up
+bindsym $mod+semicolon focus right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+bindsym $mod+Shift+j move left
+bindsym $mod+Shift+k move down
+bindsym $mod+Shift+l move up
+bindsym $mod+Shift+semicolon move right
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+bindsym $mod+h split h
+bindsym $mod+v split v
+bindsym $mod+t layout toggle split
+bindsym $mod+f fullscreen toggle
+
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space focus mode_toggle
+
+bindsym $mod+i exec $locker
+bindsym $mod+Shift+s exec systemctl suspend
+bindsym $mod+n exec swaymsg 'output "eDP-1" mode 1920x1080 position 0,0; output "HDMI-A-1" enable position 1920,0'
+bindsym $mod+m exec swaymsg 'output "HDMI-A-1" disable'
+
+bindsym $mod+Shift+d exec alacritty -e sh -lc 'swaymsg -t get_tree | less'
+bindsym $mod+z exec rofi -show  -modi ':rofi-bookmarks' -no-default-config -config ~/.config/rofi/main.rasi
+bindsym $mod+x exec rofi-powermenu
+bindsym $mod+c exec flameshot gui -c --accept-on-select -p ~/Pictures/screenshots
+
+bindsym Print exec grim "$HOME/Pictures/screenshots/$(date +'%Y%m%d-%H%M%S').png"
+bindsym Shift+Print exec bash -lc 'grim -g "$(slurp)" "$HOME/Pictures/screenshots/$(date +"%Y%m%d-%H%M%S")-sel.png" && wl-copy < "$HOME/Pictures/screenshots/$(date +"%Y%m%d-%H%M%S")-sel.png"'
+bindsym XF86MonBrightnessUp exec bash -lc 'brightnessctl set +10% && $notify_cmd "Brightness" "$(brightnessctl get)"'
+bindsym XF86MonBrightnessDown exec bash -lc 'brightnessctl set 10%- && $notify_cmd "Brightness" "$(brightnessctl get)"'
+bindsym XF86AudioRaiseVolume exec amixer -D pulse sset Master 5%+ && volume
+bindsym XF86AudioLowerVolume exec amixer -D pulse sset Master 5%- && volume
+bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle && mute
+bindsym Ctrl+F1 exec alacritty
+bindsym Ctrl+F2 exec dmenu_run
+bindsym Ctrl+F3 exec bash -lc 'amixer set Capture nocap && $notify_cmd Microphone "Muted"'
+bindsym Ctrl+F4 exec bash -lc 'amixer set Capture cap && $notify_cmd Microphone "Unmuted"'
+bindsym Ctrl+F5 exec kitty
+bindsym Ctrl+F9 exec bash -lc 'swaymsg input "type:touchpad" events disabled && $notify_cmd Touchpad "Disabled"'
+bindsym Ctrl+F10 exec bash -lc 'swaymsg input "type:touchpad" events enabled && $notify_cmd Touchpad "Enabled"'
+
+set $ws1 "1: 👨‍💻 Code"
+set $ws2 "2: 🎬 Videos"
+set $ws3 "3: 🎧 Music"
+set $ws4 "4: 🤷 Misc"
+set $ws5 "5: 🌐 Web"
+set $ws6 "6: 💬 Chat"
+set $ws7 "7: 📁 Files"
+set $ws8 "8: 🎮 Games"
+set $ws9 "9: 📊 Work"
+set $ws10 "10: ⚙️ Settings"
+
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+bindsym $mod+0 workspace number $ws10
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+bindsym $mod+Shift+0 move container to workspace number $ws10
+
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your session.' -B 'Yes, exit sway' 'swaymsg exit'
+
+mode "resize" {
+    bindsym j resize shrink width 10 px or 10 ppt
+    bindsym k resize grow height 10 px or 10 ppt
+    bindsym l resize shrink height 10 px or 10 ppt
+    bindsym semicolon resize grow width 10 px or 10 ppt
+    bindsym Left resize shrink width 10 px or 10 ppt
+    bindsym Down resize grow height 10 px or 10 ppt
+    bindsym Up resize shrink height 10 px or 10 ppt
+    bindsym Right resize grow width 10 px or 10 ppt
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+default_border pixel 1
+default_floating_border pixel 1
+hide_edge_borders smart
+client.focused          #5E81AC #5E81AC #FFFFFF #5E81AC #5E81AC
+client.focused_inactive #3A3A3A #3A3A3A #CCCCCC #3A3A3A #3A3A3A
+client.unfocused        #2A2A2A #2A2A2A #999999 #2A2A2A #2A2A2A
+
+gaps inner 8
+gaps outer 0

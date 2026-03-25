@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+route="$(ip -4 route get 1.1.1.1 2>/dev/null | head -n1 || true)"
+ip_addr=""
+dev=""
+if [[ -n "$route" ]]; then
+  ip_addr="$(printf '%s\n' "$route" | awk '{for (i=1; i<=NF; i++) if ($i=="src") {print $(i+1); exit}}')"
+  dev="$(printf '%s\n' "$route" | awk '{for (i=1; i<=NF; i++) if ($i=="dev") {print $(i+1); exit}}')"
+fi
+
+ssid=""
+conn=""
+conn_type=""
+if command -v nmcli >/dev/null 2>&1; then
+  if [[ -n "$dev" ]]; then
+    ssid="$(nmcli -t -f ACTIVE,SSID,DEVICE dev wifi 2>/dev/null | awk -F: -v d="$dev" '$1=="yes" && $3==d {print $2; exit}')"
+    if [[ -z "$ssid" ]]; then
+      conn="$(nmcli -t -f DEVICE,TYPE,STATE,CONNECTION dev status 2>/dev/null | awk -F: -v d="$dev" '$1==d && $3=="connected" {print $4; exit}')"
+      conn_type="$(nmcli -t -f DEVICE,TYPE,STATE dev status 2>/dev/null | awk -F: -v d="$dev" '$1==d && $3=="connected" {print $2; exit}')"
+    fi
+  else
+    ssid="$(nmcli -t -f ACTIVE,SSID dev wifi 2>/dev/null | awk -F: '$1=="yes" {print $2; exit}')"
+  fi
+fi
+
+label="Conn"
+value="offline"
+if [[ -n "$ssid" ]]; then
+  label="SSID"
+  value="$ssid"
+elif [[ -n "$conn" ]]; then
+  if [[ -n "$conn_type" ]]; then
+    value="${conn} (${conn_type})"
+  else
+    value="$conn"
+  fi
+fi
+
+if [[ -z "$ip_addr" ]]; then
+  ip_addr="-"
+fi
+
+ping_ms="-"
+if command -v ping >/dev/null 2>&1; then
+  ping_ms="$(ping -c1 -W1 1.1.1.1 2>/dev/null | awk -F'time=' '/time=/{split($2, a, " "); print a[1] " ms"; exit}')"
+  if [[ -z "$ping_ms" ]]; then
+    ping_ms="-"
+  fi
+fi
+
+printf '%s %s | IP %s | Ping %s\n' "$label" "$value" "$ip_addr" "$ping_ms"

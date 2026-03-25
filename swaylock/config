@@ -1,0 +1,32 @@
+# ~/.config/swaylock/config  — Rose Pine Moon
+
+font=JetBrainsMono Nerd Font
+
+# Background
+color=232136ff
+image=/home/kami/Pictures/walls/rose_moon_landscape.jpg
+scaling=fill
+
+# Ring + inside
+inside-color=232136cc
+inside-ver-color=3e8fb0cc
+inside-wrong-color=eb6f92cc
+
+ring-color=393552ff
+ring-ver-color=3e8fb0ff
+ring-wrong-color=eb6f92ff
+
+line-color=00000000
+separator-color=00000000
+
+# Text
+text-color=e0def4ff
+text-ver-color=e0def4ff
+text-wrong-color=eb6f92ff
+
+# Indicator
+indicator-radius=130
+indicator-thickness=12
+
+bs-hl-color=eb6f92ff
+key-hl-color=c4a7e7ff

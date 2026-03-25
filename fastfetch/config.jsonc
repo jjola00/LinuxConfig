@@ -1,0 +1,176 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "type": "kitty",
+        "source": "$(find \"${XDG_PICTURES_DIR:-$HOME/Pictures}/wallpapers\" -type f \\( -iname \"*.png\" -o -iname \"*.jpg\" -o -iname \"*.jpeg\" -o -iname \"*.webp\" \\) | shuf -n 1)",
+        "height": 30,
+        "padding": {
+            "left": 6,
+            "right": 6
+        }
+    },
+    "display": {
+        "separator": "  "
+    },
+    "modules": [
+        {
+            "type": "custom",
+            "format": "\u001b[36m   コンピューター"
+        },
+        {
+            "type": "custom",
+            "format": "╔════════════════════════🟕═════════════════════════╗"
+        },
+        "break",
+        {
+            "type": "host",
+            "key": "╭─   Host   ",
+            "keyColor": "green"
+        },
+        {
+            "type": "display",
+            "key": "├─   Display",
+            "keyColor": "green"
+        },
+        {
+            "type": "cpu",
+            "format": "{1}",
+            "key": "├─   CPU    ",
+            "keyColor": "green"
+        },
+        {
+            "type": "gpu",
+            "format": "{2}",
+            "key": "├─   GPU    ",
+            "keyColor": "green"
+        },
+        {
+            "type": "memory",
+            "key": "├─   Memory ",
+            "keyColor": "green"
+        },
+        {
+            "type": "disk",
+            "key": "╰─   Disk   ",
+            "keyColor": "green"
+        },
+        "break",
+        {
+            "type": "os",
+            "key": "╭─   OS     ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "kernel",
+            "key": "├─   Kernel ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "wm",
+            "key": "├─   WM     ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "packages",
+            "key": "├─   Package",
+            "keyColor": "blue"
+        },
+        {
+            "type": "uptime",
+            "key": "├─   Uptime ",
+            "keyColor": "blue"
+        },
+        {
+            "type": "command",
+            "key": "╰─   OS Age ",
+            "keyColor": "blue",
+            "text": "birth_install=$(stat -c %W /); current=$(date +%s); echo $(((current-birth_install)/86400)) days"
+        },
+        "break",
+        {
+            "type": "command",
+            "key": "╭─   Github     ",
+            "keyColor": "magenta",
+            "text": "a=$(/home/kami/.config/fastfetch/tsukiyomi-fetch wrapper github --color magenta);printf '%b' \"$a\""
+        },
+        {
+            "type": "command",
+            "key": "├─   LeetCode   ",
+            "keyColor": "magenta",
+            "text": "a=$(/home/kami/.config/fastfetch/tsukiyomi-fetch wrapper leetcode --color magenta);printf '%b' \"$a\""
+        },
+        {
+            "type": "command",
+            "key": "├─   Instagram  ",
+            "keyColor": "magenta",
+            "text": "a=$(/home/kami/.config/fastfetch/tsukiyomi-fetch wrapper instagram --color magenta);printf '%b' \"$a\""
+        },
+        {
+            "type": "command",
+            "key": "├─   Reddit     ",
+            "keyColor": "magenta",
+            "text": "a=$(/home/kami/.config/fastfetch/tsukiyomi-fetch wrapper reddit --color magenta);printf '%b' \"$a\""
+        },
+        {
+            "type": "command",
+            "key": "├─   Letterboxd ",
+            "keyColor": "magenta",
+            "text": "a=$(/home/kami/.config/fastfetch/letterboxd-fetch jjola00);printf '%b' \"$a\""
+        },
+        {
+            "type": "command",
+            "key": "╰─   MyAnimeList",
+            "keyColor": "magenta",
+            "text": "a=$(/home/kami/.config/fastfetch/tsukiyomi-fetch wrapper myanimelist --color magenta);printf '%b' \"$a\""
+        },
+        "break",
+        {
+            "type": "command",
+            "key": "╭─   Wallpaper  ",
+            "keyColor": "cyan",
+            "text": "a=$(/home/kami/.config/fastfetch/wallpaper-info);printf '%b' \"$a\""
+        },
+        {
+            "type": "command",
+            "key": "├─   Temps      ",
+            "keyColor": "cyan",
+            "text": "a=$(/home/kami/.config/fastfetch/thermal-info);printf '%b' \"$a\""
+        },
+        {
+            "type": "command",
+            "key": "├─   Power      ",
+            "keyColor": "cyan",
+            "text": "a=$(/home/kami/.config/fastfetch/power-info);printf '%b' \"$a\""
+        },
+        {
+            "type": "command",
+            "key": "├─   Network    ",
+            "keyColor": "cyan",
+            "text": "a=$(/home/kami/.config/fastfetch/network-info);printf '%b' \"$a\""
+        },
+        {
+            "type": "command",
+            "key": "├─   Now Playing",
+            "keyColor": "cyan",
+            "text": "a=$(/home/kami/.config/fastfetch/nowplaying-info);printf '%b' \"$a\""
+        },
+        {
+            "type": "command",
+            "key": "╰─   Weather    ",
+            "keyColor": "cyan",
+            "text": "a=$(/home/kami/.config/fastfetch/weather-info);printf '%b' \"$a\""
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "╚════════════════════════🟕═════════════════════════╝"
+        },
+        "break",
+        {
+            "type": "colors",
+            "paddingLeft": 2,
+            "symbol": "diamond"
+        },
+        "break"
+    ]
+}
